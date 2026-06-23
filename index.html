@@ -58,8 +58,8 @@
      RESET
   ═══════════════════════════════════════ */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; overflow-x: hidden; }
-  body { font-family: var(--sans); background: var(--stone); color: var(--ink); line-height: 1.65; overflow-x: hidden; }
+  html { scroll-behavior: smooth; overflow-x: clip; }
+  body { font-family: var(--sans); background: var(--stone); color: var(--ink); line-height: 1.65; overflow-x: clip; }
   img  { max-width: 100%; display: block; }
   a    { color: inherit; text-decoration: none; }
   :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 2px; }
@@ -318,12 +318,26 @@
   /* ═══════════════════════════════════════
      ABOUT  — expanded with pull-quotes + photo
   ═══════════════════════════════════════ */
-  .about { padding-block: var(--gap); background: var(--taupe); }
-  .about-grid {
-    display: grid;
-    grid-template-columns: 1.35fr 1fr;
+  .about {
+    padding-block: var(--gap);
+    padding-inline: var(--pad-x);
+    background: var(--taupe);
+    display: flex;
     gap: clamp(2.5rem, 6vw, 6rem);
-    align-items: start;
+    align-items: flex-start;
+  }
+  .about > .container {
+    flex: 1.35;
+    margin-inline: 0;
+    max-width: none;
+    padding-inline: 0;
+  }
+  .about-photo-col {
+    width: clamp(200px, 42%, 460px);
+    flex-shrink: 0;
+    position: sticky;
+    top: calc(3.7rem + 2rem);
+    align-self: flex-start;
   }
   .about-body .eyebrow { margin-bottom: 1.1rem; }
   .about-heading {
@@ -370,13 +384,11 @@
   .stat-num  { font-family: var(--serif); font-size: 2.3rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: .3rem; }
   .stat-label{ font-size: .72rem; font-weight: 500; letter-spacing: .05em; color: var(--ink-muted); }
 
-  /* Photo column */
-  .about-photo-col { position: sticky; top: calc(3.7rem + 2rem); }
   .about-photo {
     width: 100%;
-    aspect-ratio: 3/4;
     border-radius: 3px;
     overflow: hidden;
+    display: block;
   }
   .about-photo-note {
     margin-top: .85rem;
@@ -388,10 +400,10 @@
     line-height: 1.6;
   }
   @media (max-width: 860px) {
-    .about-grid { grid-template-columns: 1fr; }
-    .about-photo-col { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
-    .about-photo { aspect-ratio: 4/3; }
-    .about-photo-note { grid-column: 1 / -1; }
+    .about { flex-direction: column; padding-inline: 0; }
+    .about > .container { flex: none; padding-inline: var(--pad-x); margin-inline: auto; max-width: min(var(--max-w), 100%); }
+    .about-photo-col { width: 100%; order: -1; position: static; }
+    .about-photo-note { display: none; }
   }
 
   /* ═══════════════════════════════════════
@@ -405,26 +417,28 @@
     gap: 2rem;
     margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
   }
+  .services-intro-left { flex: 1; }
   .services-intro .eyebrow { margin-bottom: .8rem; }
   .services-heading {
     font-family: var(--serif);
     font-size: clamp(2rem, 4vw, 3.5rem);
     font-weight: 300;
     line-height: 1.1;
+    margin-bottom: .75rem;
   }
   .services-heading em { font-style: italic; color: var(--gold); }
-  .services-intro-right { display: flex; flex-direction: column; align-items: flex-end; gap: 1.25rem; }
   .services-note {
     font-size: .78rem; color: var(--ink-muted);
-    text-align: right; max-width: 22ch; line-height: 1.65; flex-shrink: 0;
+    max-width: 40ch; line-height: 1.65;
   }
   .services-accent {
-    width: 160px;
+    width: min(28vw, 240px);
     aspect-ratio: 2/3;
     border-radius: 3px;
     overflow: hidden;
     flex-shrink: 0;
     display: block;
+    object-fit: cover;
   }
 
   /* Ledger */
@@ -463,9 +477,8 @@
     .ledger-cat-wide .svc-grid { grid-template-columns: 1fr; }
     .ledger-cat-wide, .on-request { grid-column: 1; }
     .services-intro { flex-direction: column; }
-    .services-intro-right { flex-direction: row; align-items: flex-start; flex-wrap: wrap; }
-    .services-accent { width: 100px; }
-    .services-note { text-align: left; max-width: 100%; }
+    .services-accent { width: 120px; }
+    .services-note { max-width: 100%; }
   }
   @media (max-width: 540px) {
     .services-accent { display: none; }
@@ -850,12 +863,13 @@
       </div>
     </div>
 
-    <!-- Owner portrait — sticky alongside the text -->
-    <div class="about-photo-col reveal reveal-d2">
-      <img class="about-photo" src="Screenshot%202026-06-23%20at%205.20.20%E2%80%AFPM.png" alt="Parukeri Estetike Memi — hairstyle result" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:3px">
-    </div>
-
   </div>
+
+  <!-- Owner portrait — sticky alongside the text -->
+  <div class="about-photo-col reveal reveal-d2">
+    <img class="about-photo" src="Screenshot%202026-06-23%20at%205.20.20%E2%80%AFPM.png" alt="Parukeri Estetike Memi — hairstyle result">
+  </div>
+
 </section>
 
 
@@ -864,16 +878,14 @@
   <div class="container">
 
     <div class="services-intro reveal">
-      <div>
+      <div class="services-intro-left">
         <p class="eyebrow">Shërbimet &amp; Çmimet</p>
         <h2 class="services-heading" id="services-h2">
           Çdo shërbim,<br><em>çdo çmim.</em>
         </h2>
-      </div>
-      <div class="services-intro-right">
         <p class="services-note">Çmimet janë në <strong>Lekë shqiptare (ALL)</strong>. Konsultimet personale me takim.</p>
-        <img class="services-accent" src="Screenshot%202026-06-23%20at%205.26.57%E2%80%AFPM.png" alt="" aria-hidden="true" style="width:100%;height:100%;object-fit:cover">
       </div>
+      <img class="services-accent" src="Screenshot%202026-06-23%20at%205.26.57%E2%80%AFPM.png" alt="" aria-hidden="true">
     </div>
 
     <div class="ledger reveal reveal-d1">
